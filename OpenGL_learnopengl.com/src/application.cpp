@@ -2,6 +2,9 @@
 #include <glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream> 
 
 // resize callback function from glfw -> change opengl viewport
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -15,6 +18,19 @@ void processInput(GLFWwindow* window)
     // close window if <ESC> pressed
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+// load shader from file location
+const std::string loadShaderFromFile(const std::string& filepath)
+{
+    std::ifstream stream(filepath);
+    std::string line;
+    std::stringstream code;
+    while (getline(stream, line))
+    {
+        code << line << '\n';
+    }
+    return code.str();
 }
 
 // basic vertex shader
@@ -77,8 +93,10 @@ int main(void)
     // vertex shader setup
     unsigned int vertexShader;
     {
-        vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+        vertexShader = glCreateShader(GL_VERTEX_SHADER); 
+        const std::string code = loadShaderFromFile("res/shaders/basic.vert");
+        const char* src = code.c_str();
+        glShaderSource(vertexShader, 1, &src, NULL);
         glCompileShader(vertexShader);
         //setup error messages
         int  success;

@@ -129,23 +129,37 @@ int main(void)
         glDeleteShader(fragmentShader);
     }
 
-    // setup an Vertex Array/Buffer Object
-    unsigned int VAO, VBO;
+    // setup an Vertex Array Object, Vertex Buffer Object, Element Buffer Object
+    unsigned int VAO, VBO, EBO;
     {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
-        // bind VAO first, then bind/set VBOs, then configure Vattrib
+        glGenBuffers(1, &EBO);
+        // bind VAO first, other stuff
         glBindVertexArray(VAO);
+        // some vertices and stuff to work with
+        float vertices[] = {
+             0.5f,  0.5f, 0.0f,  // top right
+             0.5f, -0.5f, 0.0f,  // bottom right
+            -0.5f, -0.5f, 0.0f,  // bottom left
+            -0.5f,  0.5f, 0.0f   // top left 
+        };
+        unsigned int indices[] = {
+            0, 1, 3,   // first triangle
+            1, 2, 3    // second triangle
+        };
+        // make VBO stuff
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        // define some coordinates and load them into the buffer
-        float vertices[] = { -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.0f,  0.5f, 0.0f };
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // make EBO stuff
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        // debind the VAO, then other stuff
         glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     // start render loop
@@ -161,7 +175,7 @@ int main(void)
         // rendering stuff
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // check and call events. swap buffers
         glfwSwapBuffers(window);

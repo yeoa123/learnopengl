@@ -21,7 +21,7 @@ void processInput(GLFWwindow* window)
 }
 
 // load shader from file location
-const std::string loadShaderFromFile(const std::string& filepath)
+std::string readFile(const std::string& filepath)
 {
     std::ifstream stream(filepath);
     std::string line;
@@ -33,23 +33,42 @@ const std::string loadShaderFromFile(const std::string& filepath)
     return code.str();
 }
 
-// basic vertex shader
-const char* vertexShaderSource = 
-"#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-
-// basic fragment shader
-const char* fragmentShaderSource = 
-"#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\0";
+// compile Shader
+unsigned int  compileShaderFromFile(const std::string& filepath)
+{
+    unsigned int shader;
+    // read shader sourcecode from file and compile shader
+    std::string vertexCode = readFile(filepath);
+    GLchar const* files[] = { vertexCode.c_str() };
+    GLint lengths[] = { vertexCode.size() };
+    // create shader
+    if ( filepath.find(".vert") != std::string::npos )
+    {
+        shader = glCreateShader(GL_VERTEX_SHADER);
+    }
+    else if (filepath.find(".frag") != std::string::npos)
+    {
+        shader = glCreateShader(GL_FRAGMENT_SHADER);
+    }
+    else
+    {
+        std::cout << "ERROR::SHADER::TYPE_FAILED\n" << std::endl;
+        return 0;
+    }
+    glShaderSource(shader, 1, files, lengths);
+    glCompileShader(shader);
+    //setup error messages
+    int  success;
+    char infoLog[512];
+    // check for vertex compilation errors
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+    return shader;
+}
 
 
 int main(void)
@@ -91,42 +110,10 @@ int main(void)
     }
 
     // vertex shader setup
-    unsigned int vertexShader;
-    {
-        vertexShader = glCreateShader(GL_VERTEX_SHADER); 
-        const std::string code = loadShaderFromFile("res/shaders/basic.vert");
-        const char* src = code.c_str();
-        glShaderSource(vertexShader, 1, &src, NULL);
-        glCompileShader(vertexShader);
-        //setup error messages
-        int  success;
-        char infoLog[512];
-        // check for vertex compilation errors
-        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-        if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    }
+    unsigned int vertexShader = compileShaderFromFile("res/shaders/basic.vert");
 
     // fragment shader setup
-    unsigned int fragmentShader;
-    {
-        fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-        glCompileShader(fragmentShader);
-        //setup error messages
-        int  success;
-        char infoLog[512];
-        // check for vertex compilation errors
-        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-        }
-    }
+    unsigned int fragmentShader = compileShaderFromFile("res/shaders/basic.frag");
     
     // shader program setup
     unsigned int shaderProgram;

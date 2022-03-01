@@ -42,13 +42,16 @@ unsigned int  compileShaderFromFile(const std::string& filepath)
     GLchar const* files[] = { vertexCode.c_str() };
     GLint lengths[] = { vertexCode.size() };
     // create shader
+    std::string shadertype;
     if ( filepath.find(".vert") != std::string::npos )
     {
         shader = glCreateShader(GL_VERTEX_SHADER);
+        shadertype = "VERTEX";
     }
     else if (filepath.find(".frag") != std::string::npos)
     {
         shader = glCreateShader(GL_FRAGMENT_SHADER);
+        shadertype = "FRAGMENT";
     }
     else
     {
@@ -65,7 +68,7 @@ unsigned int  compileShaderFromFile(const std::string& filepath)
     if (!success)
     {
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::" << shadertype << "::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
     return shader;
 }
@@ -177,10 +180,18 @@ int main(void)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // timing stuff
+        float timeValue = glfwGetTime();
+        float pulse = (sin(timeValue) / 2.0f) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "pulse");
+        if (vertexColorLocation == -1)
+            std::cout << "ERROR::SHADER::UNIFORM_NOT_EXISTING\n" << std::endl;
+
         // rendering stuff
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glUniform2f(vertexColorLocation, 8*pulse, pulse);
 
         // check and call events. swap buffers
         glfwSwapBuffers(window);

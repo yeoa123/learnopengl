@@ -26,4 +26,9 @@
     <None Include="res\shaders\basic.vert" />
     <None Include="res\shaders\basic.frag" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\main.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

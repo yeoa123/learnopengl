@@ -1,102 +1,5 @@
-// always include glad bevore glfw. it needs opengl headers.
-#include <glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <fstream>
-#include <sstream> 
 
-
-#define ASSERT(x) if (!(x)) __debugbreak();
-#define glcall(x) GLClearError();\
-    x;\
-    ASSERT(GLLogCall(#x, __FILE__, __LINE__));
-
-// error function internal to gl
-static void GLClearError()
-{
-    while (glGetError() != GL_NO_ERROR);
-}
-
-static bool GLLogCall(const char *function, const char *file, int line)
-{
-    while (GLenum error = glGetError())
-    {
-        // printing <error> as hexadeximal value
-        std::cout << "[OpenGL Error] (0x" << std::setfill('0') << std::setw(4) << std::hex << error << ")"
-            << function << " in " << file << ":" << std::dec << line << std::endl;
-        return false;
-    }
-    return true;
-}
-
-// resize callback function from glfw -> change opengl viewport
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-// processing keyboard inputs
-void processInput(GLFWwindow* window)
-{
-    // close window if <ESC> pressed
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
-
-// load shader from file location
-std::string readFile(const std::string& filepath)
-{
-    std::ifstream stream(filepath);
-    std::string line;
-    std::stringstream code;
-    while (getline(stream, line))
-    {
-        code << line << '\n';
-    }
-    return code.str();
-}
-
-// compile Shader
-unsigned int  compileShaderFromFile(const std::string& filepath)
-{
-    unsigned int shader;
-    // read shader sourcecode from file and compile shader
-    std::string vertexCode = readFile(filepath);
-    GLchar const* files[] = { vertexCode.c_str() };
-    GLint lengths[] = { vertexCode.size() };
-    // create shader
-    std::string shadertype;
-    if ( filepath.find(".vert") != std::string::npos )
-    {
-        shader = glCreateShader(GL_VERTEX_SHADER);
-        shadertype = "VERTEX";
-    }
-    else if (filepath.find(".frag") != std::string::npos)
-    {
-        shader = glCreateShader(GL_FRAGMENT_SHADER);
-        shadertype = "FRAGMENT";
-    }
-    else
-    {
-        std::cout << "ERROR::SHADER::TYPE_FAILED\n" << std::endl;
-        return 0;
-    }
-    glShaderSource(shader, 1, files, lengths);
-    glCompileShader(shader);
-    //setup error messages
-    int  success;
-    char infoLog[512];
-    // check for vertex compilation errors
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::" << shadertype << "::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    return shader;
-}
+#include "main.hpp"
 
 
 int main(void)
@@ -217,7 +120,7 @@ int main(void)
         glBindVertexArray(VAO);
 
         // make error to see what happens GL_UNSIGNED_INT -> GL_INT
-        glcall(glDrawElements(GL_TRIANGLES, 6, GL_INT, 0));
+        glcall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
         
 
         glUniform2f(vertexColorLocation, 8*pulse, pulse);

@@ -1,4 +1,4 @@
-// -------------------------------- INCLUDES --------------------------------
+// ----------------------- INCLUDES -----------------------
 // always include glad bevore glfw. it needs opengl headers.
 #include <glad.h>
 #include <GLFW/glfw3.h>
@@ -8,11 +8,13 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+// my own classes
+#include "Renderer.hpp"
 
 
-// -------------------------------- ERROR CHECKING --------------------------------
+// ----------------------- ERROR CHECKING -----------------------
 #define ASSERT(x) if (!(x)) __debugbreak();
-#define glcall(x) GLClearError();\
+#define glCall(x) GLClearError();\
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__));
 // error function internal to gl
@@ -33,14 +35,14 @@ static bool GLLogCall(const char* function, const char* file, int line)
 }
 
 
-// -------------------------------- OTHER FUNCTIONS --------------------------------
+// ----------------------- OTHER FUNCTIONS -----------------------
 // resize callback function from glfw -> change opengl viewport
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void inline framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 // processing keyboard inputs
-void processInput(GLFWwindow* window)
+void inline processInput(GLFWwindow* window)
 {
     // close window if <ESC> pressed
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -48,9 +50,9 @@ void processInput(GLFWwindow* window)
 }
 
 
-// -------------------------------- EASY SHADER COMPILATION --------------------------------
+// ----------------------- EASY SHADER COMPILATION -----------------------
 // load shader from file location
-std::string readFile(const std::string& filepath)
+std::string inline readFile(const std::string& filepath)
 {
     std::ifstream stream(filepath);
     std::string line;
@@ -62,13 +64,13 @@ std::string readFile(const std::string& filepath)
     return code.str();
 }
 // compile Shader
-unsigned int  compileShaderFromFile(const std::string& filepath)
+unsigned int inline compileShaderFromFile(const std::string& filepath)
 {
     unsigned int shader;
     // read shader sourcecode from file and compile shader
     std::string vertexCode = readFile(filepath);
     GLchar const* files[] = { vertexCode.c_str() };
-    GLint lengths[] = { vertexCode.size() };
+    GLint lengths[] = { (GLint)vertexCode.size() };
     // create shader
     std::string shadertype;
     if (filepath.find(".vert") != std::string::npos)

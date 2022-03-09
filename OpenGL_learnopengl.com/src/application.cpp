@@ -1,5 +1,5 @@
-
-#include "main.hpp"
+// ----------------------- INCLUDES -----------------------
+#include "utility.hpp"
 
 
 int main(void)
@@ -109,7 +109,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         // timing stuff
-        float timeValue = glfwGetTime();
+        float timeValue = (float)glfwGetTime();
         float pulse = (sin(timeValue) / 2.0f) + 0.5f;
         int vertexColorLocation = glGetUniformLocation(shaderProgram, "pulse");
         if (vertexColorLocation == -1)
@@ -120,7 +120,7 @@ int main(void)
         glBindVertexArray(VAO);
 
         // make error to see what happens GL_UNSIGNED_INT -> GL_INT
-        glcall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+        glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
         
 
         glUniform2f(vertexColorLocation, 8*pulse, pulse);

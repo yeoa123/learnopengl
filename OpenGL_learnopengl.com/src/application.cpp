@@ -2,9 +2,34 @@
 #include <glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include <sstream> 
+
+
+#define ASSERT(x) if (!(x)) __debugbreak();
+#define glcall(x) GLClearError();\
+    x;\
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__));
+
+// error function internal to gl
+static void GLClearError()
+{
+    while (glGetError() != GL_NO_ERROR);
+}
+
+static bool GLLogCall(const char *function, const char *file, int line)
+{
+    while (GLenum error = glGetError())
+    {
+        // printing <error> as hexadeximal value
+        std::cout << "[OpenGL Error] (0x" << std::setfill('0') << std::setw(4) << std::hex << error << ")"
+            << function << " in " << file << ":" << std::dec << line << std::endl;
+        return false;
+    }
+    return true;
+}
 
 // resize callback function from glfw -> change opengl viewport
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -177,7 +202,7 @@ int main(void)
         processInput(window);
 
         // clear color
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.15f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // timing stuff
@@ -190,7 +215,11 @@ int main(void)
         // rendering stuff
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // make error to see what happens GL_UNSIGNED_INT -> GL_INT
+        glcall(glDrawElements(GL_TRIANGLES, 6, GL_INT, 0));
+        
+
         glUniform2f(vertexColorLocation, 8*pulse, pulse);
 
         // check and call events. swap buffers

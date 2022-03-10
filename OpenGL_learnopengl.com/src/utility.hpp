@@ -10,6 +10,8 @@
 #include <sstream>
 // my own classes
 #include "Renderer.hpp"
+#include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
 
 
 // ----------------------- ERROR CHECKING -----------------------

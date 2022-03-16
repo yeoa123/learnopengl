@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Renderer.hpp"
 
 class IndexBuffer
 {
@@ -11,7 +11,7 @@ private:
 
 public:
 	// data | sizeof(data)
-	IndexBuffer(const unsigned* data, unsigned int count);
+	IndexBuffer(const unsigned* data, unsigned int bytes);
 	~IndexBuffer();
 
 	void bind() const;

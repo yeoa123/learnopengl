@@ -1,8 +1,5 @@
-// ----------------------- INCLUDES -----------------------
 #pragma once
 #include "VertexBuffer.hpp"
-#include "utility.hpp"
-
 
 // ----------------------- CONSTRUCTOR -----------------------
 VertexBuffer::VertexBuffer(const void* data, unsigned int bytes)

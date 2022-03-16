@@ -155,6 +155,8 @@
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
+    <ClCompile Include="src\VertexBufferLayout.hpp" />
+    <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,7 +166,7 @@
   <ItemGroup>
     <ClInclude Include="src\IndexBuffer.hpp" />
     <ClInclude Include="src\Renderer.hpp" />
-    <ClInclude Include="src\utility.hpp" />
+    <ClInclude Include="src\VertexArray.hpp" />
     <ClInclude Include="src\VertexBuffer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

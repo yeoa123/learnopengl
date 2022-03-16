@@ -1,16 +1,12 @@
-// ----------------------- INCLUDES -----------------------
 #pragma once
 #include "IndexBuffer.hpp"
-#include "utility.hpp"
 
-
-// ----------------------- CONSTRUCTOR -----------------------
-IndexBuffer::IndexBuffer(const unsigned* data, unsigned int count)
-	:m_Count(count)
+IndexBuffer::IndexBuffer(const unsigned* data, unsigned int bytes)
+	:m_Count(bytes/sizeof(unsigned int))
 {
 	glCall(glGenBuffers(1, &m_RendererID));
 	glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID));
-	glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count*sizeof(unsigned int), data, GL_STATIC_DRAW));
+	glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, bytes, data, GL_STATIC_DRAW));
 }
 
 IndexBuffer::~IndexBuffer()

@@ -2,13 +2,15 @@
 #include <vector>
 #include "Renderer.hpp"
 
+// stores: type, count, normalized
 struct VertexBufferLayoutElements
 {
 	unsigned int type;
 	unsigned int count;
 	unsigned char normalized;
 
-	static unsigned int getSizeOfType(unsigned int type)
+	// OpenGL types -> size in bytes
+	static unsigned int getBytesOfType(unsigned int type)
 	{
 		switch (type)
 		{
@@ -33,30 +35,30 @@ public:
 	~VertexBufferLayout(){};
 	
 	template<typename T>
-	inline void push(unsigned int count)
+	void push(unsigned int count)
 	{
-		// static_assert(false);
+		static_assert(sizeof(T) == 0, "Type not implemented.");
 	}
 
 	template<>
 	inline void push<float>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
-		m_Stride += count * VertexBufferLayoutElements::getSizeOfType(GL_FLOAT);
+		m_Stride += count * VertexBufferLayoutElements::getBytesOfType(GL_FLOAT);
 	}
 
 	template<>
 	inline void push<unsigned int>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_UNSIGNED_INT, count, GL_FALSE });
-		m_Stride += count * VertexBufferLayoutElements::getSizeOfType(GL_UNSIGNED_INT);
+		m_Stride += count * VertexBufferLayoutElements::getBytesOfType(GL_UNSIGNED_INT);
 	}
 
 	template<>
 	inline void push<unsigned char>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_UNSIGNED_BYTE, count, GL_TRUE });
-		m_Stride += count * VertexBufferLayoutElements::getSizeOfType(GL_UNSIGNED_BYTE);
+		m_Stride += count * VertexBufferLayoutElements::getBytesOfType(GL_UNSIGNED_BYTE);
 	}
 
 	inline std::vector<VertexBufferLayoutElements> const& getElements() const { return m_Elements; }

@@ -13,16 +13,20 @@ VertexArray::~VertexArray()
 
 void VertexArray::addBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
 {
+	// first bind the VA, then the VB
 	bind();
 	vb.bind();
+	// get the different elements of the layout ( example: 3 float for position + 1 int for other stuff + ... )
 	const auto& elements = layout.getElements();
 	unsigned int offset = 0;
+	// loop over every element -> tell GL the Attributes of the bound VB 
 	for (unsigned int i = 0; i < elements.size(); i++)
 	{
 		const auto& element = elements[i];
 		glCall(glEnableVertexAttribArray(i));
 		glCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(), (const void*)offset));
-		offset += element.count * VertexBufferLayoutElements::getSizeOfType(element.type);
+		// calculate the offset (=bytes to hop) to get to the next element
+		offset += element.count * VertexBufferLayoutElements::getBytesOfType(element.type);
 	}
 }
 

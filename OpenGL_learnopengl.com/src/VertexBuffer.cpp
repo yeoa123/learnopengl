@@ -1,7 +1,6 @@
 #pragma once
 #include "VertexBuffer.hpp"
 
-// ----------------------- CONSTRUCTOR -----------------------
 VertexBuffer::VertexBuffer(const void* data, unsigned int bytes)
 {
 	glCall(glGenBuffers(1, &m_RendererID));

@@ -16,8 +16,6 @@
 #include "VertexBufferLayout.hpp"
 
 
-
-
 // ----------------------- OTHER FUNCTIONS -----------------------
 // resize callback function from glfw -> change opengl viewport
 void inline framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -87,6 +85,7 @@ unsigned int inline compileShaderFromFile(const std::string& filepath)
 }
 
 
+
 int main(void)
 {
     // glfw initialization stuff
@@ -125,7 +124,7 @@ int main(void)
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     }
 
-    // begin opengl contextoo
+    // begin opengl context
     {
         // vertex shader setup
         unsigned int vertexShader = compileShaderFromFile("res/shaders/basic.vert");
@@ -164,14 +163,18 @@ int main(void)
             -0.5f,  0.5f, 0.0f   // top left 
         };
 
-        // with use of our new classes
-        VertexBuffer vb(vertices, sizeof(vertices));
-        IndexBuffer ib(indices, sizeof(indices));
+        // construct VertexArray
         VertexArray va;
+        // construct VertexBuffer with the positions of the rectangle
+        VertexBuffer vb(vertices, sizeof(vertices));
+        // construct IndexBuffer with the indices of the rectangle stuff
+        IndexBuffer ib(indices, sizeof(indices));
+        // construct the layout
         VertexBufferLayout layout;
+        // layout the attribute of one vertex: 3 floats for position
         layout.push<float>(3);
+        // bind the Buffer with its layout to this VertexArray
         va.addBuffer(vb, layout);
-        va.bind();
 
         // start render loop
         while (!glfwWindowShouldClose(window))

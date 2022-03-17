@@ -36,7 +36,7 @@ int main(void)
     {
         glfwInit();
         // set the version to 3.3, and use the core profile
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     }
@@ -75,14 +75,13 @@ int main(void)
 
         // some vertices and stuff to work with
         unsigned int indices[] = {
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
+            0, 1, 2,   // triangle
         };
         float vertices[] = {
-             0.5f,  0.5f, 0.0f,  // top right
-             0.5f, -0.5f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f,  // bottom left
-            -0.5f,  0.5f, 0.0f   // top left 
+            // positions         // colors
+             0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+            -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+             0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
         };
 
         // construct VertexArray
@@ -93,7 +92,8 @@ int main(void)
         IndexBuffer ib(indices, sizeof(indices));
         // construct the layout
         VertexBufferLayout layout;
-        // layout the attribute of one vertex: 3 floats for position
+        // layout the attribute of one vertex: 3 floats for position, 3 floats for colors
+        layout.push<float>(3);
         layout.push<float>(3);
         // bind the Buffer with its layout to this VertexArray
         va.addBuffer(vb, layout);
@@ -119,7 +119,7 @@ int main(void)
             ib.bind();
 
             // actual draw call to the gpu after setting all the states
-            glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+            glCall(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0));
 
             // check and call events. swap buffers
             glfwSwapBuffers(window);

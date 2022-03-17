@@ -2,18 +2,14 @@
 // always include glad bevore glfw. it needs opengl headers.
 #include <glad.h>
 #include <GLFW/glfw3.h>
-// stuff for io and strings
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <fstream>
-#include <sstream>
+
 // my own classes
 #include "Renderer.hpp"
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
+#include "Shader.hpp"
 
 
 // ----------------------- OTHER FUNCTIONS -----------------------
@@ -31,58 +27,6 @@ void inline processInput(GLFWwindow* window)
 }
 
 
-// ----------------------- EASY SHADER COMPILATION -----------------------
-// load shader from file location
-std::string inline readFile(const std::string& filepath)
-{
-    std::ifstream stream(filepath);
-    std::string line;
-    std::stringstream code;
-    while (getline(stream, line))
-    {
-        code << line << '\n';
-    }
-    return code.str();
-}
-// compile Shader
-unsigned int inline compileShaderFromFile(const std::string& filepath)
-{
-    unsigned int shader;
-    // read shader sourcecode from file and compile shader
-    std::string vertexCode = readFile(filepath);
-    GLchar const* files[] = { vertexCode.c_str() };
-    GLint lengths[] = { (GLint)vertexCode.size() };
-    // create shader
-    std::string shadertype;
-    if (filepath.find(".vert") != std::string::npos)
-    {
-        shader = glCreateShader(GL_VERTEX_SHADER);
-        shadertype = "VERTEX";
-    }
-    else if (filepath.find(".frag") != std::string::npos)
-    {
-        shader = glCreateShader(GL_FRAGMENT_SHADER);
-        shadertype = "FRAGMENT";
-    }
-    else
-    {
-        std::cout << "ERROR::SHADER::TYPE_FAILED\n" << std::endl;
-        return 0;
-    }
-    glShaderSource(shader, 1, files, lengths);
-    glCompileShader(shader);
-    //setup error messages
-    int  success;
-    char infoLog[512];
-    // check for vertex compilation errors
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::" << shadertype << "::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    return shader;
-}
 
 
 
@@ -126,30 +70,7 @@ int main(void)
 
     // begin opengl context
     {
-        // vertex shader setup
-        unsigned int vertexShader = compileShaderFromFile("res/shaders/basic.vert");
-
-        // fragment shader setup
-        unsigned int fragmentShader = compileShaderFromFile("res/shaders/basic.frag");
-
-        // shader program setup
-        unsigned int shaderProgram;
-        {
-            shaderProgram = glCreateProgram();
-            glAttachShader(shaderProgram, vertexShader);
-            glAttachShader(shaderProgram, fragmentShader);
-            glLinkProgram(shaderProgram);
-            //setup error messages
-            int  success;
-            char infoLog[512];
-            // shader programm errors
-            glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-            if (!success) {
-                glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-            }
-            glDeleteShader(vertexShader);
-            glDeleteShader(fragmentShader);
-        }
+        Shader s("res/shaders/basic.vert", "res/shaders/basic.frag");
 
         // some vertices and stuff to work with
         unsigned int indices[] = {
@@ -189,12 +110,12 @@ int main(void)
             // timing stuff
             float timeValue = (float)glfwGetTime();
             float pulse = (sin(timeValue) / 2.0f) + 0.5f;
-            int vertexColorLocation = glGetUniformLocation(shaderProgram, "pulse");
-            if (vertexColorLocation == -1)
-                std::cout << "ERROR::SHADER::UNIFORM_NOT_EXISTING\n" << std::endl;
+            
+            s.setUniform4f("uniformVariable", pulse, pulse, pulse, pulse);
+            
 
-            // rendering stuff
-            glUseProgram(shaderProgram);
+            // rendering stuff          
+            s.bind();
             va.bind();
             ib.bind();
 
@@ -202,7 +123,7 @@ int main(void)
             glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
 
 
-            glUniform2f(vertexColorLocation, 8 * pulse, pulse);
+            
 
             // check and call events. swap buffers
             glfwSwapBuffers(window);

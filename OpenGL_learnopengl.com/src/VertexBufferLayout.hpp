@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "Renderer.hpp"
+#include "ErrorHandling.hpp"
 
 // stores: type, count, normalized
 struct VertexBufferLayoutElements

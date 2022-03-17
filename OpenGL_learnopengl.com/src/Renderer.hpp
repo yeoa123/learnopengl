@@ -1,26 +1,19 @@
 #pragma once
-#include <glad.h>
-#include <iostream>
-#include <iomanip>
+#include "ErrorHandling.hpp"
+#include "VertexArray.hpp"
+#include "IndexBuffer.hpp"
+#include "Shader.hpp"
 
-// ----------------------- ERROR CHECKING -----------------------
-#define ASSERT(x) if (!(x)) __debugbreak();
-#define glCall(x) GLClearError();\
-    x;\
-    ASSERT(GLLogCall(#x, __FILE__, __LINE__));
-// error function internal to gl
-static void GLClearError()
+
+class Renderer
 {
-    while (glGetError() != GL_NO_ERROR);
-}
-static bool GLLogCall(const char* function, const char* file, int line)
-{
-    while (GLenum error = glGetError())
-    {
-        // printing <error> as hexadeximal value
-        std::cout << "[OpenGL Error] (0x" << std::setfill('0') << std::setw(4) << std::hex << error << ")"
-            << function << " in " << file << ":" << std::dec << line << std::endl;
-        return false;
-    }
-    return true;
-}
+public:
+	Renderer();
+	~Renderer();
+
+	void draw(const VertexArray& v, const Shader& s, const IndexBuffer& i);
+	void drawClearColor(float f0, float f1, float f2, float f3);
+
+private:
+    
+};

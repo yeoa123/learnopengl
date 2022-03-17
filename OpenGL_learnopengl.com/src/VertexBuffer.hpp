@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.hpp"
+#include "ErrorHandling.hpp"
 
 class VertexBuffer
 {

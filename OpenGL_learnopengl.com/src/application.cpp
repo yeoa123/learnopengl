@@ -75,13 +75,15 @@ int main(void)
 
         // some vertices and stuff to work with
         unsigned int indices[] = {
-            0, 1, 2,   // triangle
+            3, 1, 0,
+            3, 0, 2
         };
         float vertices[] = {
             // positions         // colors
-             0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-            -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-             0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
+             0.5f, -0.5f, 1.0f, 0.0f, 0.0f,   // bottom right
+            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,   // bottom left
+             0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   // top right
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f    // top left
         };
 
         // construct VertexArray
@@ -93,10 +95,13 @@ int main(void)
         // construct the layout
         VertexBufferLayout layout;
         // layout the attribute of one vertex: 3 floats for position, 3 floats for colors
-        layout.push<float>(3);
+        layout.push<float>(2);
         layout.push<float>(3);
         // bind the Buffer with its layout to this VertexArray
         va.addBuffer(vb, layout);
+
+        // construct renderer
+        Renderer rnd;
 
         // start render loop
         while (!glfwWindowShouldClose(window))
@@ -104,22 +109,16 @@ int main(void)
             // user inputs
             processInput(window);
 
-            // clear color
-            glClearColor(0.15f, 0.2f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
+            // make background color
+            rnd.drawClearColor(0.15f, 0.2f, 0.3f, 1.0f);
+            
             // timing stuff -> write into uniform to read on gpu
             float timeValue = (float)glfwGetTime();
             float pulse = (sin(timeValue) / 2.0f) + 0.5f;
             s.setUniform4f("uniformVariable", pulse, pulse, pulse, pulse);
             
-            // rendering stuff = shader + vertexarray + indexbuffer          
-            s.bind();
-            va.bind();
-            ib.bind();
-
-            // actual draw call to the gpu after setting all the states
-            glCall(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0));
+            // call renderer draw
+            rnd.draw(va, s, ib);
 
             // check and call events. swap buffers
             glfwSwapBuffers(window);

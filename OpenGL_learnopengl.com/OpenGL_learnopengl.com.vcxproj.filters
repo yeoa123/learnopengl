@@ -60,5 +60,8 @@
     <ClInclude Include="src\Shader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ErrorHandling.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

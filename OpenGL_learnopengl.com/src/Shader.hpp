@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "Renderer.hpp"
+#include "ErrorHandling.hpp"
 
 class Shader
 {

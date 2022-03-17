@@ -79,11 +79,11 @@ int main(void)
             3, 0, 2
         };
         float vertices[] = {
-            // positions         // colors
-             0.5f, -0.5f, 1.0f, 0.0f, 0.0f,   // bottom right
-            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,   // bottom left
-             0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   // top right
-            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f    // top left
+            // positions  // colors         // tex-coords
+             0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,         // bottom right
+            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,         // bottom left
+             0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,         // top right
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f          // top left
         };
 
         // construct VertexArray
@@ -97,6 +97,7 @@ int main(void)
         // layout the attribute of one vertex: 3 floats for position, 3 floats for colors
         layout.push<float>(2);
         layout.push<float>(3);
+        layout.push<float>(2);
         // bind the Buffer with its layout to this VertexArray
         va.addBuffer(vb, layout);
 

@@ -1,77 +1,33 @@
+// ----------------------- INCLUDES -----------------------
 // always include glad bevore glfw. it needs opengl headers.
 #include <glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream> 
 
+// my own classes
+#include "Renderer.hpp"
+#include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
+#include "VertexArray.hpp"
+#include "VertexBufferLayout.hpp"
+#include "Shader.hpp"
+
+
+// ----------------------- OTHER FUNCTIONS -----------------------
 // resize callback function from glfw -> change opengl viewport
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void inline framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
-
 // processing keyboard inputs
-void processInput(GLFWwindow* window)
+void inline processInput(GLFWwindow* window)
 {
     // close window if <ESC> pressed
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
 
-// load shader from file location
-std::string readFile(const std::string& filepath)
-{
-    std::ifstream stream(filepath);
-    std::string line;
-    std::stringstream code;
-    while (getline(stream, line))
-    {
-        code << line << '\n';
-    }
-    return code.str();
-}
 
-// compile Shader
-unsigned int  compileShaderFromFile(const std::string& filepath)
-{
-    unsigned int shader;
-    // read shader sourcecode from file and compile shader
-    std::string vertexCode = readFile(filepath);
-    GLchar const* files[] = { vertexCode.c_str() };
-    GLint lengths[] = { vertexCode.size() };
-    // create shader
-    std::string shadertype;
-    if ( filepath.find(".vert") != std::string::npos )
-    {
-        shader = glCreateShader(GL_VERTEX_SHADER);
-        shadertype = "VERTEX";
-    }
-    else if (filepath.find(".frag") != std::string::npos)
-    {
-        shader = glCreateShader(GL_FRAGMENT_SHADER);
-        shadertype = "FRAGMENT";
-    }
-    else
-    {
-        std::cout << "ERROR::SHADER::TYPE_FAILED\n" << std::endl;
-        return 0;
-    }
-    glShaderSource(shader, 1, files, lengths);
-    glCompileShader(shader);
-    //setup error messages
-    int  success;
-    char infoLog[512];
-    // check for vertex compilation errors
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::" << shadertype << "::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    return shader;
-}
+
 
 
 int main(void)
@@ -80,7 +36,7 @@ int main(void)
     {
         glfwInit();
         // set the version to 3.3, and use the core profile
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     }
@@ -112,97 +68,63 @@ int main(void)
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     }
 
-    // vertex shader setup
-    unsigned int vertexShader = compileShaderFromFile("res/shaders/basic.vert");
-
-    // fragment shader setup
-    unsigned int fragmentShader = compileShaderFromFile("res/shaders/basic.frag");
-    
-    // shader program setup
-    unsigned int shaderProgram;
+    // begin opengl context
     {
-        shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
-        glLinkProgram(shaderProgram);
-        //setup error messages
-        int  success;
-        char infoLog[512];
-        // shader programm errors
-        glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-        if (!success) {
-            glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        }
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-    }
+        // construct shader program with vertex and fragment shader
+        Shader s("res/shaders/basic.vert", "res/shaders/basic.frag");
 
-    // setup an Vertex Array Object, Vertex Buffer Object, Element Buffer Object
-    unsigned int VAO, VBO, EBO;
-    {
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
-        // bind VAO first, other stuff
-        glBindVertexArray(VAO);
         // some vertices and stuff to work with
-        float vertices[] = {
-             0.5f,  0.5f, 0.0f,  // top right
-             0.5f, -0.5f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f,  // bottom left
-            -0.5f,  0.5f, 0.0f   // top left 
-        };
         unsigned int indices[] = {
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
+            3, 1, 0,
+            3, 0, 2
         };
-        // make VBO stuff
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        // make EBO stuff
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-        // debind the VAO, then other stuff
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        float vertices[] = {
+            // positions         // colors
+             0.5f, -0.5f, 1.0f, 0.0f, 0.0f,   // bottom right
+            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,   // bottom left
+             0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   // top right
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f    // top left
+        };
+
+        // construct VertexArray
+        VertexArray va;
+        // construct VertexBuffer with the positions of the rectangle
+        VertexBuffer vb(vertices, sizeof(vertices));
+        // construct IndexBuffer with the indices of the rectangle stuff
+        IndexBuffer ib(indices, sizeof(indices));
+        // construct the layout
+        VertexBufferLayout layout;
+        // layout the attribute of one vertex: 3 floats for position, 3 floats for colors
+        layout.push<float>(2);
+        layout.push<float>(3);
+        // bind the Buffer with its layout to this VertexArray
+        va.addBuffer(vb, layout);
+
+        // construct renderer
+        Renderer rnd;
+
+        // start render loop
+        while (!glfwWindowShouldClose(window))
+        {
+            // user inputs
+            processInput(window);
+
+            // make background color
+            rnd.drawClearColor(0.15f, 0.2f, 0.3f, 1.0f);
+            
+            // timing stuff -> write into uniform to read on gpu
+            float timeValue = (float)glfwGetTime();
+            float pulse = (sin(timeValue) / 2.0f) + 0.5f;
+            s.setUniform4f("uniformVariable", pulse, pulse, pulse, pulse);
+            
+            // call renderer draw
+            rnd.draw(va, s, ib);
+
+            // check and call events. swap buffers
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+        }
     }
-
-    // start render loop
-    while (!glfwWindowShouldClose(window))
-    {
-        // user inputs
-        processInput(window);
-
-        // clear color
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // timing stuff
-        float timeValue = glfwGetTime();
-        float pulse = (sin(timeValue) / 2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "pulse");
-        if (vertexColorLocation == -1)
-            std::cout << "ERROR::SHADER::UNIFORM_NOT_EXISTING\n" << std::endl;
-
-        // rendering stuff
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glUniform2f(vertexColorLocation, 8*pulse, pulse);
-
-        // check and call events. swap buffers
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    // destroy our things
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-
     // terminate
     glfwTerminate();
     return 0;

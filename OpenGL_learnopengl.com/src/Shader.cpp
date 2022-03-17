@@ -81,6 +81,7 @@ Shader::Shader(const std::string& vertexfilepath, const std::string& fragmentfil
 
 Shader::~Shader()
 {
+    glCall(glDeleteProgram(m_RendererID));
 }
 
 void Shader::bind() const

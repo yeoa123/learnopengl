@@ -70,6 +70,7 @@ int main(void)
 
     // begin opengl context
     {
+        // construct shader program with vertex and fragment shader
         Shader s("res/shaders/basic.vert", "res/shaders/basic.frag");
 
         // some vertices and stuff to work with
@@ -107,23 +108,18 @@ int main(void)
             glClearColor(0.15f, 0.2f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            // timing stuff
+            // timing stuff -> write into uniform to read on gpu
             float timeValue = (float)glfwGetTime();
             float pulse = (sin(timeValue) / 2.0f) + 0.5f;
-            
             s.setUniform4f("uniformVariable", pulse, pulse, pulse, pulse);
             
-
-            // rendering stuff          
+            // rendering stuff = shader + vertexarray + indexbuffer          
             s.bind();
             va.bind();
             ib.bind();
 
-            // make error to see what happens GL_UNSIGNED_INT -> GL_INT
+            // actual draw call to the gpu after setting all the states
             glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
-
-
-            
 
             // check and call events. swap buffers
             glfwSwapBuffers(window);

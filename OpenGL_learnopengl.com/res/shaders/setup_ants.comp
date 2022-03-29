@@ -1,0 +1,33 @@
+#version 460 core
+layout(local_size_x = 1, local_size_y = 1) in;
+layout(rgba32f, binding = 1) uniform image2D img_output_buffer;
+layout(rg16f, binding = 2) uniform image1D positions;
+
+float rnd(vec2 x)
+{
+    int n = int(x.x * 40.0 + x.y * 6400.0);
+    n = (n << 13) ^ n;
+    return 1.0 - float( (n * (n * n * 15731 + 789221) + \
+             1376312589) & 0x7fffffff) / 1073741824.0;
+} 
+
+
+void main ()
+{
+	// get the index in the global work group (= x,y position)
+	
+	// random generated position + constant white to the img_ouput_buffer
+	float x = rnd(vec2(1, gl_GlobalInvocationID.x));
+	float y = rnd(vec2(gl_GlobalInvocationID.x, 1));
+	x = (x+1) / 2;
+	y = (y+1) / 2;
+	x *= 1500;
+	y *= 500;
+	ivec2 pixel_coords = ivec2(x, y);
+	vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
+	imageStore(img_output_buffer, pixel_coords, white);
+
+	// store this position in the position texture
+	int i = int(gl_GlobalInvocationID.x);
+	imageStore(positions, i, vec4(x ,y ,0 ,0) );
+};

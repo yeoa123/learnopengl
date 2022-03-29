@@ -1,6 +1,6 @@
 #version 460 core
 layout(local_size_x = 1, local_size_y = 1) in;
-layout(rgba32f, binding = 1) uniform image2D img_output;
+layout(rgba32f, binding = 1) uniform image2D img_output_buffer;
 
 float rnd(vec2 x)
 {
@@ -10,17 +10,23 @@ float rnd(vec2 x)
              1376312589) & 0x7fffffff) / 1073741824.0;
 } 
 
-
-void main ()
+void randomize_map ()
 {
 	// get the index in the global work group (= x,y position)
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 
 	float grey = rnd(pixel_coords.xy);
-	grey = (grey * 2) - 1;
+	vec4 pixel = vec4(0 ,0 ,0 , 1.0);
+	if (grey > 0.3)
+	{
+		pixel = vec4(1.0, 1.0, 1.0, 1.0);
+	}
 
-	// set an base color for the image
-	vec4 pixel = vec4(grey, grey, grey, 1.0);
+	imageStore(img_output_buffer, pixel_coords, pixel);
+}
 
-	imageStore(img_output, pixel_coords, pixel);
+
+void main ()
+{
+	// heheh
 };

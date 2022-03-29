@@ -45,8 +45,8 @@ int main(void)
     // Window object creation
     GLFWwindow* window;
     {
-        width = 1500;
-        height = 800;
+        width = 1000;
+        height = 500;
         window = glfwCreateWindow(width, height, "LearnOpenGL", NULL, NULL);
         if (window == NULL)
         {
@@ -159,17 +159,44 @@ int main(void)
             glCall(glBindImageTexture(1, tex_output_buffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F));
         }
 
+        GLuint positions;
+        unsigned int number = 1000;
+        {
+            glCall(glGenTextures(1, &positions));
+            glCall(glActiveTexture(GL_TEXTURE2));
+            glCall(glBindTexture(GL_TEXTURE_1D, positions));
+            glCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            glCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+            glCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            glCall(glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            glCall(glTexImage1D(GL_TEXTURE_1D, 0, GL_RG16F, number, 0, GL_RG, GL_FLOAT, NULL));
+            glCall(glBindImageTexture(2, positions, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F));
+        }
+
+
         Shader calc("res/shaders/calc.comp");
         Shader copy("res/shaders/copy.comp");
-        Shader setup("res/shaders/setup.comp");
+        Shader setup_map("res/shaders/setup_map.comp");
+        Shader setup_ants("res/shaders/setup_ants.comp");
+        // Shader update_ants("res/shaders/update_ants.comp");
+
 
         // setup the double buffering texture
         {
             glCall(glBindImageTexture(1, tex_output_buffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F));
-            setup.bind();
+            setup_map.bind();
             glCall(glDispatchCompute((GLuint)tex_w, (GLuint)tex_h, 1));
         }
         glCall(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
+
+        // setup the positions
+        {
+            glCall(glBindImageTexture(2, positions, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RG16F));
+            setup_ants.bind();
+            glCall(glDispatchCompute(number, 1, 1));
+        }
+        glCall(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
+
 
 
         // start render loop
@@ -177,13 +204,15 @@ int main(void)
         {
             // user inputs
             processInput(window);
-
+            
+            // take the values from buffer, calculate, store in the output image
             {
                 calc.bind();
                 glCall(glDispatchCompute((GLuint)tex_w, (GLuint)tex_h, 1));
             }
             glCall(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
 
+            // copy the output image into the buffer for next frame use
             {
                 copy.bind();
                 glCall(glDispatchCompute((GLuint)tex_w, (GLuint)tex_h, 1));
@@ -193,20 +222,12 @@ int main(void)
             // make background color
             rnd.drawClearColor(0.15f, 0.2f, 0.3f, 1.0f);
 
-            
-            // timing stuff -> write into uniform to read on gpu
-            // float timeValue = (float)glfwGetTime();
-            // float pulse = (sin(timeValue) / 2.0f) + 0.5f;
-            // s.setUniform4f("uniformVariable", pulse, pulse, pulse, pulse);
-            
             {
                 glClear(GL_COLOR_BUFFER_BIT);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, tex_output);
                 rnd.draw(va, s, ib);
             }
-
-            // call renderer draw
 
             // check and call events. swap buffers
             glfwSwapBuffers(window);

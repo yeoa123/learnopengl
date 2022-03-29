@@ -3,16 +3,50 @@ layout(local_size_x = 1, local_size_y = 1) in;
 layout(rgba32f, binding = 0) uniform image2D img_output;
 layout(rgba32f, binding = 1) uniform image2D img_output_buffer;
 
-
-void main ()
+void gauss_blur ()
 {
+	ivec2[] edges = 
+	{
+		ivec2(-1,  0),
+		ivec2( 1,  0),
+		ivec2( 0, -1),
+		ivec2( 0,  1)
+	};
+
+	ivec2[] corners = 
+	{
+		ivec2(-1, -1),
+		ivec2( 1, -1),
+		ivec2(-1,  1),
+		ivec2( 1,  1)
+	};
+
+
 	// get the index in the global work group (= x,y position)
 	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
 
-	vec4 color = imageLoad(img_output_buffer, pixel_coords) * 0.95;
-
-
-	vec4 pixel = vec4(color.r, color.g, color.b, 1.0);
-
+	// initialize color with middle point, loop over edges, loop over corners
+	vec4 color = imageLoad(img_output_buffer, pixel_coords) / 4;
+	for (int i = 0; i < 4; i++)
+	{
+		color += imageLoad(img_output_buffer, pixel_coords + edges[i]) / 8;
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		color += imageLoad(img_output_buffer, pixel_coords + corners[i]) / 16;
+	}
+	vec4 pixel = vec4(color.rgb, 1.0);
 	imageStore(img_output, pixel_coords, pixel);
+}
+
+void nothing ()
+{
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	vec4 pixel = imageLoad(img_output_buffer, pixel_coords);
+	imageStore(img_output, pixel_coords, pixel);
+}
+
+void main ()
+{
+	gauss_blur();
 };

@@ -44,8 +44,9 @@
     <None Include="res\shaders\basic.vert" />
     <None Include="res\shaders\basic.frag" />
     <None Include="res\shaders\calc.comp" />
-    <None Include="res\shaders\setup.comp" />
+    <None Include="res\shaders\setup_map.comp" />
     <None Include="res\shaders\copy.comp" />
+    <None Include="res\shaders\setup_ants.comp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.hpp">

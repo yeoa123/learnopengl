@@ -21,20 +21,25 @@ unsigned int Shader::compileShaderFromFile(const std::string& filepath)
 {
     unsigned int shader;
     // read shader sourcecode from file and compile shader
-    std::string vertexCode = readFile(filepath);
-    GLchar const* files[] = { vertexCode.c_str() };
-    GLint lengths[] = { (GLint)vertexCode.size() };
+    std::string code = readFile(filepath);
+    GLchar const* files[] = { code.c_str() };
+    GLint lengths[] = { (GLint)code.size() };
     // create shader
     std::string shadertype;
     if (filepath.find(".vert") != std::string::npos)
     {
-        shader = glCreateShader(GL_VERTEX_SHADER);
+        glCall(shader = glCreateShader(GL_VERTEX_SHADER));
         shadertype = "VERTEX";
     }
     else if (filepath.find(".frag") != std::string::npos)
     {
-        shader = glCreateShader(GL_FRAGMENT_SHADER);
+        glCall(shader = glCreateShader(GL_FRAGMENT_SHADER));
         shadertype = "FRAGMENT";
+    }
+    else if (filepath.find(".comp") != std::string::npos)
+    {
+        glCall(shader = glCreateShader(GL_COMPUTE_SHADER));
+        shadertype = "COMPUTE";
     }
     else
     {
@@ -76,6 +81,24 @@ Shader::Shader(const std::string& vertexfilepath, const std::string& fragmentfil
     glCall(glDeleteShader(fs));
     glCall(glDeleteShader(vs));
 
+
+}
+
+Shader::Shader(const std::string& computefilepath)
+{
+    unsigned int c = compileShaderFromFile(computefilepath);
+    glCall(m_RendererID = glCreateProgram());
+    glCall(glAttachShader(m_RendererID, c));
+    glCall(glLinkProgram(m_RendererID));
+    //setup error messages
+    int  success;
+    char infoLog[512];
+    // shader programm errors
+    glCall(glGetProgramiv(m_RendererID, GL_LINK_STATUS, &success));
+    if (!success) {
+        glCall(glGetProgramInfoLog(m_RendererID, 512, NULL, infoLog));
+    }
+    glCall(glDeleteShader(c));
 
 }
 

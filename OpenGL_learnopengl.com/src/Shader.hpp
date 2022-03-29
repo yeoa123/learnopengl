@@ -9,10 +9,11 @@
 class Shader
 {
 private:
-	unsigned int m_RendererID;
 
 public:
+	unsigned int m_RendererID;
 	Shader(const std::string& vertexfilepath, const std::string& fragmentfilepath);
+	Shader(const std::string& computefilepath);
 	~Shader();
 
 	void bind() const;

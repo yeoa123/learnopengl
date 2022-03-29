@@ -161,8 +161,11 @@
     <ClCompile Include="src\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\calc.comp" />
     <None Include="res\shaders\basic.frag" />
     <None Include="res\shaders\basic.vert" />
+    <None Include="res\shaders\copy.comp" />
+    <None Include="res\shaders\setup.comp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ErrorHandling.hpp" />

@@ -1,0 +1,26 @@
+#version 460 core
+layout(local_size_x = 1, local_size_y = 1) in;
+layout(rgba32f, binding = 1) uniform image2D img_output;
+
+float rnd(vec2 x)
+{
+    int n = int(x.x * 40.0 + x.y * 6400.0);
+    n = (n << 13) ^ n;
+    return 1.0 - float( (n * (n * n * 15731 + 789221) + \
+             1376312589) & 0x7fffffff) / 1073741824.0;
+} 
+
+
+void main ()
+{
+	// get the index in the global work group (= x,y position)
+	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+
+	float grey = rnd(pixel_coords.xy);
+	grey = (grey * 2) - 1;
+
+	// set an base color for the image
+	vec4 pixel = vec4(grey, grey, grey, 1.0);
+
+	imageStore(img_output, pixel_coords, pixel);
+};

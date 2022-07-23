@@ -64,6 +64,7 @@ int main(void)
             return -1;
         }
 
+
         // setup the viewport
         // rendering size and coordinates respective to the window
         glCall(glViewport(0, 0, width, height));
@@ -197,11 +198,21 @@ int main(void)
         }
         glCall(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT));
 
-
+      
+        GLfloat deltaTime = 0.0f, lastFrame = 0.0f;
 
         // start render loop
         while (!glfwWindowShouldClose(window))
         {
+            // Set frame time
+            GLfloat currentFrame = glfwGetTime();
+            while (deltaTime < 0.5f)
+            {
+                currentFrame = glfwGetTime();
+                deltaTime = currentFrame - lastFrame;
+            }
+            lastFrame = currentFrame;
+
             // user inputs
             processInput(window);
             

@@ -23,27 +23,27 @@ void gauss_blur ()
 
 
 	// get the index in the global work group (= x,y position)
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+	ivec2 xy = ivec2(gl_GlobalInvocationID.xy);
 
 	// initialize color with middle point, loop over edges, loop over corners
-	vec4 color = imageLoad(img_output_buffer, pixel_coords) / 4;
+	vec4 color = imageLoad(img_output_buffer, xy) / 4;
 	for (int i = 0; i < 4; i++)
 	{
-		color += imageLoad(img_output_buffer, pixel_coords + edges[i]) / 8;
+		color += imageLoad(img_output_buffer, xy + edges[i]) / 8;
 	}
 	for (int i = 0; i < 4; i++)
 	{
-		color += imageLoad(img_output_buffer, pixel_coords + corners[i]) / 16;
+		color += imageLoad(img_output_buffer, xy + corners[i]) / 16;
 	}
 	vec4 pixel = vec4(color.rgb, 1.0);
-	imageStore(img_output, pixel_coords, pixel);
+	imageStore(img_output, xy, pixel);
 }
 
 void nothing ()
 {
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	vec4 pixel = imageLoad(img_output_buffer, pixel_coords);
-	imageStore(img_output, pixel_coords, pixel);
+	ivec2 xy = ivec2(gl_GlobalInvocationID.xy);
+	vec4 pixel = imageLoad(img_output_buffer, xy);
+	imageStore(img_output, xy, pixel);
 }
 
 void main ()

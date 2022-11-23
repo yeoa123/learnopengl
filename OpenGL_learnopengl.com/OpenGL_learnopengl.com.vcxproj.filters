@@ -47,6 +47,7 @@
     <None Include="res\shaders\setup_map.comp" />
     <None Include="res\shaders\copy.comp" />
     <None Include="res\shaders\setup_ants.comp" />
+    <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.hpp">

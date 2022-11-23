@@ -1,0 +1,4 @@
+.vscode/
+*.vcxproj
+*.filter
+[dD]ebug/

@@ -11,19 +11,30 @@ float rnd(vec2 x)
              1376312589) & 0x7fffffff) / 1073741824.0;
 } 
 
+ivec2 uv2xy(vec2 xy)
+{
+	float x = xy.x;
+	float y = xy.y;
+	x = (x+1) / 2;
+	y = (y+1) / 2;
+	x *= 1500;
+	y *= 500;
+	ivec2 uv = ivec2(x,y);
+	return uv;
+}
+
 
 void main ()
 {
 	// get the index in the global work group (= x,y position)
 	
 	// random generated position + constant white to the img_ouput_buffer
-	float x = rnd(vec2(1, gl_GlobalInvocationID.x));
-	float y = rnd(vec2(gl_GlobalInvocationID.x, 1));
-	x = (x+1) / 2;
-	y = (y+1) / 2;
-	x *= 1500;
-	y *= 500;
-	ivec2 pixel_coords = ivec2(x, y);
+	// float x = rnd(vec2(1, gl_GlobalInvocationID.x));
+	// float y = rnd(vec2(gl_GlobalInvocationID.x, 1));
+	float x = gl_GlobalInvocationID.x;
+	float y = gl_GlobalInvocationID.x;
+
+	ivec2 pixel_coords = uv2xy(vec2(x, y));
 	vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
 	imageStore(img_output_buffer, pixel_coords, white);
 
